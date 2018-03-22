@@ -167,6 +167,9 @@ form#task label {
 .container-fluid {
   max-width: 1200px;
 }
+.container{
+  padding: 60px 0 0 10px;
+}
 .navbar-brand {
   font-family: 'Yanone Kaffeesatz', sans-serif;
   font-weight: 300;
@@ -300,15 +303,15 @@ body {
   height: 100%;
   margin: 0 auto -81px;
 }
-#footer{
+
+#footer,
+.footer_push {
   position: absolute;
   bottom: 0;
   width: 100%;
-}
-#footer,
-.footer_push {
   padding-top: 36px;
   height: 81px;
+
 }
 #footer .navbar,
 .footer_push .navbar {

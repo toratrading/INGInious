@@ -344,7 +344,7 @@ function studio_create_new_subproblem()
     }
 
     studio_create_from_template('#' + new_subproblem_type, new_subproblem_pid);
-    studio_init_template(new_subproblem_pid, {"type": new_subproblem_type});
+    studio_init_template(new_subproblem_pid, {"type": new_subproblem_type.substring(11)});
 }
 
 /**
@@ -428,20 +428,6 @@ function studio_init_template_file(well, pid, problem)
         $('#maxsize-' + pid, well).val(problem["max_size"]);
     if("allowed_exts" in problem)
         $('#extensions-' + pid, well).val(problem["allowed_exts"].join());
-}
-
-/**
- * Init a custom template
- * @param well: the DOM element containing the input fields
- * @param pid
- * @param problem
- */
-function studio_init_template_custom(well, pid, problem)
-{
-    var val = "";
-    if("custom" in problem)
-        val = problem["custom"];
-    registerCodeEditor($('#custom-' + pid)[0], 'yaml', 10).setValue(val);
 }
 
 /**
@@ -569,7 +555,7 @@ function studio_subproblem_down(pid)
 function studio_subproblem_delete(pid)
 {
     var well = $(studio_get_problem(pid));
-    if(!confirm("Are you sure that you want to delete this subproblem?"))
+    if(!confirm(delete_subproblem_message))
         return;
     $.each(codeEditors, function(name, editor)
     {

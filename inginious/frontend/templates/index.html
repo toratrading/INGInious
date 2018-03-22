@@ -21,12 +21,12 @@ $def ColumnF():
     $else:
         <h3>$:_("Public courses")</h3>
         <div class="alert alert-warning" role="alert">
-            $:_("This page lists all the courses that are accessible now. If you are a course administrator, go to your 'My courses' page to see all of them.")
+            $:_("This page lists all the courses that are available now. If you are a course administrator, go to your 'My courses' page to see all of them.")
         </div>
         <div class="list-group">
             <a class="list-group-item list-group-item-info" href="$get_homepath()/mycourses">
                 <i class="fa fa-fw fa-th-list"></i>
-                $:_("My courses")
+                $:_("My courses / Register for a course")
             </a>
         </div>
 $var Column: $:ColumnF()

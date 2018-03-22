@@ -108,13 +108,40 @@ $var Navbar: $:NavbarF()
 <!-- Must be out of the form -->
 <div id="subproblem_templates" style="display:none">
     $for key, problem_type in problem_types.items():
-        $:problem_type.show_editbox(template_helper, key)
-    $:include.course_admin.subproblems.custom()
+        <div id="subproblem_$key">
+            <div class="panel panel-default" id="subproblem_well_PID" >
+                <div class="panel-heading" role="tab" id="heading_PID">
+                    <div class="row">
+                        <div class="col-md-10" >
+                            <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
+                                <i class="fa fa-bars"></i> $:_("Problem id:") <span id="pid-PID">PID</span>
+                            </span>
+                        </div>
+                        <div class="col-md-2">
+                            <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                            <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                            <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                    <div class="panel-body">
+                        <input type="hidden" name="problem[PID][type]" value="$key"/>
+                        <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+                        $:problem_type.show_editbox(template_helper, key)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="subproblem_$(key)_templates">
+            $:problem_type.show_editbox_templates(template_helper, key)
+        </div>
 </div>
 $:include.course_admin.edit_tabs.file_modals()
 
 <!-- Init the javascript for the subproblem tab -->
 <script type="text/javascript">
+    delete_subproblem_message = '$:_("Are you sure that you want to delete this subproblem?")';
     problem_data = $:{problemdump};
     $$ (function(){ studio_load(problem_data); });
 </script>

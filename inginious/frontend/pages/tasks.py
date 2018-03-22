@@ -10,6 +10,8 @@ import posixpath
 import urllib.error
 import urllib.parse
 import urllib.request
+import random
+import time
 
 import web
 from bson.objectid import ObjectId
@@ -32,6 +34,7 @@ class BaseTaskPage(object):
         self.default_allowed_file_extensions = self.cp.default_allowed_file_extensions
         self.default_max_file_size = self.cp.default_max_file_size
         self.webterm_link = self.cp.webterm_link
+        self.plugin_manager = self.cp.plugin_manager
 
     def set_selected_submission(self, course, task, submissionid):
         submission = self.submission_manager.get_submission(submissionid)
@@ -94,6 +97,15 @@ class BaseTaskPage(object):
         next_taskid = keys[index + 1] if index < len(keys) - 1 else None
 
         self.user_manager.user_saw_task(username, courseid, taskid)
+        
+        # Generate random inputs and save it into db
+        random_input_list = []
+        random.seed(str(username if username is not None else "") + taskid + courseid + str(time.time() if task.regenerate_input_random() else ""))
+        random_input_list = [random.random() for i in range(task.get_number_input_random())]
+        if username is not None and len(random_input_list) > 0: # Avoid errors when visitors/unregistered users and avoid pollute db if input random not using
+            self.database.user_tasks.update(
+                    {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username},
+                    {"$set": {"random": random_input_list}})
 
         userinput = web.input()
         if "submissionid" in userinput and "questionid" in userinput:
@@ -137,9 +149,10 @@ class BaseTaskPage(object):
 
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
             user_info = self.database.users.find_one({"username": username})
+
             # Display the task itself
             return self.template_helper.get_renderer().task(user_info, course, task, submissions,
-                                                            students, eval_submission, user_task, previous_taskid, next_taskid, self.webterm_link)
+                                                            students, eval_submission, user_task, previous_taskid, next_taskid, self.webterm_link, random_input_list)
 
     def POST(self, courseid, taskid, isLTI):
         """ POST a new submission """
@@ -163,6 +176,14 @@ class BaseTaskPage(object):
                 # Verify rights
                 if not self.user_manager.task_can_user_submit(task, username, isLTI):
                     return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
+                    
+                # Retrieve input random and check still valid
+                random_input = self.database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
+                random_input = random_input["random"] if "random" in random_input else []
+                for i in range(0, len(random_input)):
+                    s = "@random_" + str(i)
+                    if s not in userinput or float(userinput[s]) != random_input[i]:
+                        return json.dumps({"status": "error", "text": _("Your task has been regenerated. This current task is outdated.")})
 
                 # Reparse user input with array for multiple choices
                 init_var = {
@@ -215,11 +236,11 @@ class BaseTaskPage(object):
                     if default_submission is None:
                         self.set_selected_submission(course, task, userinput['submissionid'])
 
-                    return self.submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'], tags=task.get_tags())
+                    return self.submission_to_json(task, result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'], tags=task.get_tags())
 
                 else:
                     web.header('Content-Type', 'application/json')
-                    return self.submission_to_json(result, is_admin)
+                    return self.submission_to_json(task, result, is_admin)
 
             elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
                 submission = self.submission_manager.get_submission(userinput["submissionid"])
@@ -229,7 +250,7 @@ class BaseTaskPage(object):
                     raise web.notfound()
                 web.header('Content-Type', 'application/json')
                 
-                return self.submission_to_json(submission, is_admin, True, tags=task.get_tags())
+                return self.submission_to_json(task, submission, is_admin, True, tags=task.get_tags())
                 
             elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
                 self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
@@ -252,7 +273,7 @@ class BaseTaskPage(object):
             else:
                 raise web.notfound()
 
-    def submission_to_json(self, data, debug, reloading=False, replace=False, tags={}):
+    def submission_to_json(self, task, data, debug, reloading=False, replace=False, tags={}):
         """ Converts a submission to json (keeps only needed fields) """
 
         if "ssh_host" in data:
@@ -313,6 +334,7 @@ class BaseTaskPage(object):
                                "If the error persists, send an email to the course administrator.")
 
         tojson["text"] = "<b>" + tojson["text"] + " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"]) + "</b>" + data.get("text", "")
+        tojson["text"] = self.plugin_manager.call_hook_recursive("feedback_text", task=task, submission=data, text=tojson["text"])["text"]
 
         if reloading:
             # Set status='ok' because we are reloading an old submission.
@@ -320,7 +342,7 @@ class BaseTaskPage(object):
             # And also include input
             tojson["input"] = data.get('input', {})
 
-        if("tests" in data):
+        if "tests" in data:
             tojson["tests"] = {}
             for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
                 if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
@@ -329,6 +351,9 @@ class BaseTaskPage(object):
                 for tag in data["tests"]:
                     if tag.startswith("*auto-tag-"):
                         tojson["tests"][tag] = data["tests"][tag]
+
+        # allow plugins to insert javascript to be run in the browser after the submission is loaded
+        tojson["feedback_script"] = "".join(self.plugin_manager.call_hook("feedback_script", task=task, submission=data))
 
         return json.dumps(tojson, default=str)
 

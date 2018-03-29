@@ -621,7 +621,7 @@ function displayTaskStudentAlertWithProblems(content, type)
 //dismissible is a boolean
 function getAlertCode(content, type, dismissible)
 {
-    var a = '<div class="alert fade in ';
+    var a = '<div class="alert fade show ';
     if(dismissible)
         a += 'alert-dismissible ';
     a += 'alert-' + type + '" role="alert">';

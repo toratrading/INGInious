@@ -319,6 +319,7 @@ $if user_manager.has_admin_rights_on_course(course):
                             $:_("Question {}").format(str(key+1)):
                         $problem.get_name(user_manager.session_language())
                     </h3>
+
                 </div>
             <div class="card-body">
                 <div id="task_alert.$problem.get_id()" class="task_alert_problem"></div>
@@ -397,7 +398,7 @@ $$(document).ready(function() {
 
 $# Input random
 $# set up some useful variable that may be used by task author
-<script>    
+<script>
     var input = {
         "@lang": "$user_manager.session_language()",
         "@username": "$user_manager.session_username()",

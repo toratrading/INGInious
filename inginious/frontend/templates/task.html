@@ -48,7 +48,7 @@ $def ColumnF():
             <tr>
                 <td>$:_("Grade")</td>
                 <td>
-                    <span id="task_grade">$user_task.get('grade', 0)</span>%
+                    <span id="task_grade">$user_task.get('grade', 0)</span>
                 </td>
             </tr>
             $if not is_lti():
@@ -329,8 +329,6 @@ $else:
             $if len(task.get_problems()) != 1 or problem.get_name(user_manager.session_language()) != "":
                 <div class="panel-heading">
                     <h3 class="panel-title">
-                        $if len(task.get_problems()) != 1:
-                            $:_("Question {}").format(str(key+1)):
                         $problem.get_name(user_manager.session_language())
                     </h3>
                 </div>

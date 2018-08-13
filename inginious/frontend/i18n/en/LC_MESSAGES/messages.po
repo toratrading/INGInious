@@ -248,19 +248,19 @@ msgstr ""
 
 #: inginious/frontend/pages/tasks.py:330
 msgid "There are some errors in your answer. Your score is {score}%."
-msgstr ""
+msgstr "There are some errors in your answer. Your score is {score}."
 
 #: inginious/frontend/pages/tasks.py:332
 msgid "Your answer passed the tests! Your score is {score}%."
-msgstr ""
+msgstr "Your answer passed the tests! Your score is {score}."
 
 #: inginious/frontend/pages/tasks.py:334
 msgid "Your submission timed out. Your score is {score}%."
-msgstr ""
+msgstr "Your submission timed out. Your score is {score}."
 
 #: inginious/frontend/pages/tasks.py:336
 msgid "Your submission made an overflow. Your score is {score}%."
-msgstr ""
+msgstr "Your submission made an overflow. Your score is {score}."
 
 #: inginious/frontend/pages/tasks.py:338
 msgid "Your submission was killed."

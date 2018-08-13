@@ -376,6 +376,7 @@ class TaskPageStaticDownload(INGIniousPage):
     def GET(self, courseid, taskid, path):  # pylint: disable=arguments-differ
         """ GET request """
         try:
+
             course = self.course_factory.get_course(courseid)
             if not self.user_manager.course_is_open_to_user(course):
                 return self.template_helper.get_renderer().course_unavailable()

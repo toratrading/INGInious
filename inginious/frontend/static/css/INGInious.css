@@ -182,6 +182,7 @@ form#task label {
   -webkit-backface-visibility: hidden;
 }
 #main_container #sidebar {
+  color: white;
   height: 100%;
 }
 #main_container #sidebar #sidebar_inner {
@@ -203,6 +204,18 @@ form#task label {
 #main_container #sidebar .affix-top {
   position: relative;
 }
+
+.first_page {
+	background-color: black;
+        background: url("img/tiger.jpg");
+        background-attachment: fixed;
+        background-position: bottom;
+        background-size: 50%;
+        background-repeat: no-repeat;
+        background-position: 100% 100%;
+	color: white;
+}
+
 .index-logo {
   position: absolute;
   right: 0;
@@ -293,12 +306,19 @@ div[data-toggle="buttons"] label.active:before {
 html,
 body {
   height: 100%;
+  background-color: black;
 }
 #wrapper {
   min-height: 100%;
   height: auto !important;
   height: 100%;
   margin: 0 auto -81px;
+        background: url("img/tiger.jpg");
+        background-attachment: fixed;
+        background-position: bottom;
+        background-size: 50%;
+        background-repeat: no-repeat;
+        background-position: 100% 100%;
 }
 #footer,
 .footer_push {
@@ -382,4 +402,18 @@ li.placeholder:before {
   outline: 0;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+}
+
+
+#content {
+	background-color:white;
+}
+
+.row-black {
+	background-color:black;
+	color:white;
+}
+
+.well-no-margin {
+	margin-bottom: 1px;
 }
